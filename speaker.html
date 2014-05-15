@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Shufflin</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script type="text/javascript" src="chroma.js"></script>
+    <style>
+        * {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body style="background-color: white;">
+
+<button id="stopStart">Start</button>
+<canvas id="canvas" width="800" height="512" style="display: block; background-color: black ;"></canvas>
+<br>
+<canvas id="wCanvas" width="800" height="55" style="display: block; background-color: black ;"></canvas>
+
+<script type="text/javascript">
+
+    // create the audio context (chrome only for now)
+    if (! window.AudioContext) {
+        if (! window.webkitAudioContext) {
+            alert('no audiocontext found');
+        }
+        window.AudioContext = window.webkitAudioContext;
+    }
+
+    var context = new AudioContext();
+
+    var microphone;
+
+    navigator.webkitGetUserMedia({audio:true}, function (stream) {
+        microphone = context.createMediaStreamSource(stream);
+        microphone.connect( createLPInputFilter() );
+        microphone = lpInputFilter;
+        // var filter = context.createBiquadFilter();
+        // microphone.connect(filter);
+        // filter.connect(context.destination);
+        // outputMix = context.createGain();
+        // microphone.connect(outputMix);
+        microphone.connect(analyser);
+        // microphone.connect(context.destination);
+        // pAudio();
+        // outputMix.connect(context.destination);
+        // context.decodeAudioData(request.response, function (buffer) {
+                // when the audio is decoded play the sound
+                //playSound(buffer);
+        // }, function(e) { console.log(e); });
+
+    }, function(e) { console.log(e); });
+
+var lpInputFilter=null;
+
+// this is ONLY because we have massive feedback without filtering out
+// the top end in live speaker scenarios.
+function createLPInputFilter(output) {
+    lpInputFilter = context.createBiquadFilter();
+    lpInputFilter.frequency.value = 1024;
+    return lpInputFilter;
+}
+
+    var audioBuffer;
+    var sourceNode;
+    var analyser;
+    var analyserSmooth;
+    var javascriptNode;
+    var amplitudeArray;
+    var aas=35;
+    var amplitudeArrays = new Array(aas);
+    var a2;
+    var sampleSize = 1024;
+
+
+    // get the context from the canvas to draw on
+    var ctx = $("#canvas").get()[0].getContext("2d");
+
+    // waveform context
+    var wCtx = $("#wCanvas").get()[0].getContext("2d");
+
+    // create a temp canvas we use for copying
+    var tempCanvas = document.createElement("canvas"),
+        tempCtx = tempCanvas.getContext("2d");
+    tempCanvas.width=800;
+    tempCanvas.height=512;
+
+    // used for color distribution
+    var hot = chroma.scale(['#000000', '#ff0000', '#ffff00', '#ffffff']).domain([0, 300]).correctLightness(true);
+    // var hot = new chroma.scale({
+    //     colors:['#000000', '#ff0000', '#ffff00', '#ffffff'],
+    //     positions:[0, .25, .75, 1],
+    //     mode:'rgb',
+    //     limits:[0, 300]
+    // });
+
+    // load the sound
+    setupAudioNodes();
+
+
+
+    // loadSound("wagner-short.ogg");
+
+// Switch to javascript node
+// add to the array of arrays
+// check zero crossings
+// THEN process
+
+    function setupAudioNodes() {
+
+        // setup a javascript node
+        // javascriptNode = context.createScriptProcessor(512, 1, 0);
+        // connect to destination, else it isn't called
+        // javascriptNode.connect(context.destination);
+
+
+        // javascriptNode = context.createScriptProcessor(sampleSize, 1, 1);
+        // javascriptNode.onaudioprocess = pAudio;
+
+        analyser = context.createAnalyser();
+        analyser.smoothingTimeConstant = 0;
+        analyser.fftSize = sampleSize;
+
+        // analyserSmooth = context.createAnalyser();
+        // analyserSmooth.smoothingTimeConstant = 1;
+
+        // Create the array for the data values
+        // amplitudeArray = new Uint8Array(analyser.frequencyBinCount);
+        // amplitudeArray = new Uint8Array(analyserSmooth.fftSize);
+        amplitudeArray = new Uint8Array(analyser.frequencyBinCount);
+        for (var i = 0; i < aas; i++) {
+            amplitudeArrays[i] = new Uint8Array(analyser.frequencyBinCount);
+        }
+        freqArray = new Uint8Array(analyser.frequencyBinCount);
+
+        // Now connect the nodes together
+        // analyser.connect(analyserSmooth);
+        // analyserSmooth.connect(javascriptNode);
+        // analyser.connect(javascriptNode);
+        // javascriptNode.connect(context.destination);
+        // setup a analyzer
+
+        // analyser.smoothingTimeConstant = 0.8;
+        // analyser.fftSize = 1024;
+
+        // analyserSmooth = context.createAnalyser();
+        // analyserSmooth.smoothingTimeConstant = 0.999;
+        // analyserSmooth.fftSize = 512;
+
+        // create a buffer source node
+        // sourceNode = context.createBufferSource();
+        // sourceNode.connect(analyser);
+        // analyser.connect(javascriptNode);
+
+        // analyser.connect(analyserSmooth);
+        // analyserSmooth.connect(context.destination);
+
+        // analyserSmooth.connect(analyser);
+        // analyser.connect(context.destination);
+
+        analyser.connect(context.destination);
+
+        // sourceNode.connect(context.destination);
+    }
+
+
+    // function playSound(buffer) {
+    //     sourceNode.buffer = buffer;
+    //     sourceNode.start(0);
+    //     sourceNode.loop = true;
+    // }
+
+    // log if an error occurs
+    function onError(e) {
+        console.log(e);
+    }
+
+    // when the javascript node is called
+    // we use information from the analyzer node
+    // to draw the volume
+    // javascriptNode.onaudioprocess = function () {
+var rafID;
+    function pAudio(d) {
+        // console.log("pAudio");
+        // console.log(d);
+        // d.inputBuffer has the data
+
+        if (going) {
+            // get the average for the first channel
+
+            analyser.getByteFrequencyData(freqArray);
+
+            // analyserSmooth.getByteTimeDomainData(amplitudeArray);
+            // analyser.getByteTimeDomainData(amplitudeArray);
+
+            // shift them all down one place
+            for (var i = 1; i < amplitudeArrays.length; i++) {
+                amplitudeArrays[i].set(amplitudeArrays[i - 1]);
+            }
+            // now fill the first slot
+            analyser.getByteTimeDomainData(amplitudeArrays[0]);
+
+            //tryDecode();
+
+
+            if (Math.random() > 0.8) {
+                // console.log(a2);
+            }
+
+            // draw the spectrogram
+            // if (sourceNode.playbackState == sourceNode.PLAYING_STATE) {
+                // drawSpectrogram(array);
+                // drawWaveform(a2);
+                drawWaveform();
+                drawSpectrogram();
+            // }
+            // window.requestAnimationFrame(drawWaveform);
+            // if (Math.random() > 0.9) {
+                // window.requestAnimationFrame(drawSpectrogram);
+            // }
+
+            window.requestAnimationFrame(pAudio);
+        }
+    }
+
+    var someA;
+    var ms = [];
+    var last;
+    var lastP;
+    var myM;
+
+    function tryDecode() {
+        // randomly sample
+        var gtg = true;
+        for (var i = 0; i < 2; i++) {
+            var l = amplitudeArrays[8].length
+            var v = amplitudeArrays[8][Math.floor(Math.random() * l)];
+            if (v > 140 || v < 100) {
+                // gtg = true;
+            } else {
+                gtg = false;
+            }
+        }
+
+        if (gtg) {
+            console.log("good!");
+            someA = new Uint8Array(amplitudeArrays[0].length * aas);
+            // someA.set(amplitudeArrays[0]);
+
+            myM = [];
+            lastP = 0;
+            last = amplitudeArrays[0][0];
+            for (var j = 0; j < aas; j++) {
+                for (var i = 0; i < amplitudeArrays[j].length; i++) {
+                    someA[i * j + i] = amplitudeArrays[j][i];
+                    myM.push(amplitudeArrays[j][i]);
+                    m = amplitudeArrays[j][i] - 128;
+
+                    if ((m < 0 && last > 0) || (m > 0 && last < 0)) {
+                        var ooZ = (((i - lastP) > 11) ? 1 : 0);
+
+                        console.log("last p - " + lastP + " diff: " + (m - last) + " d " + (i - lastP) + " v: " + (ooZ) );
+                        ms.push(ooZ);
+                        lastP = i;
+                    };
+                    last = m;
+
+
+                    // var ms = []; var lastP = 0; last = someA[0] - 128; for(var i=0; i<someA.length; i++){ m = someA[i] - 127; if ((m < 0 && last > 0) || (m > 0 && last < 0)) { console.log("last p - " + lastP + " diff: " + (m - last) + " d " + (i - lastP) + " v: " + (((i - lastP) > 15) ? "1" : "0") ); ms.push(((i - lastP) > 11) ? 1 : 0); lastP = i;}; last = m; }; ms;
+                }
+                // myM.push(amplitudeArrays[0][i]);
+            }
+            console.log(ms);
+            // window.localStorage["doIt"] = myM;
+
+            /*********/
+
+            // var lastP = 0; last = mm[0] - 127; mm.map(function(m, i) { m = m - 127; if ((m < 0 && last > 0) || (m > 0 && last < 0)) { console.log("last p - " + lastP + " diff: " + (m - last) + " d " + (i - lastP) + " v: " + (((i - lastP) > 15) ? "1" : "0") ); lastP = i;}; last = m; });
+
+            // var ms = []; var lastP = 0; last = someA[0] - 128; for(var i=0; i<someA.length; i++){ m = someA[i] - 127; if ((m < 0 && last > 0) || (m > 0 && last < 0)) { console.log("last p - " + lastP + " diff: " + (m - last) + " d " + (i - lastP) + " v: " + (((i - lastP) > 15) ? "1" : "0") ); ms.push(((i - lastP) > 11) ? 1 : 0); lastP = i;}; last = m; }; ms;
+        }
+    }
+
+    $("#stopStart").on("click", function() {
+        $this = $(this);
+        if ($this.html() == "Start") {
+            // start it up
+            $this.html("Stop");
+            going = true;
+            rafID = window.requestAnimationFrame(pAudio);
+        } else {
+            // stop
+            $this.html("Start");
+            going = false;
+            window.cancelAnimationFrame(rafID);
+        }
+    });
+
+    var going=false;
+
+
+// function updateAnalysers(time) {
+//     analyserView1.doFrequencyAnalysis( analyser1 );
+//     analyserView2.doFrequencyAnalysis( analyser2 );
+
+//     rafID = window.requestAnimationFrame( updateAnalysers );
+// }
+    function drawSpectrogram() {
+    // function drawSpectrogram(array) {
+
+        // copy the current canvas onto the temp canvas
+        var canvas = document.getElementById("canvas");
+
+        tempCtx.drawImage(canvas, 0, 0, 800, 512);
+
+        // iterate over the elements from the array
+        var fl = freqArray.length;
+        for (var i = 0; i < fl; i++) {
+            // draw each pixel with the specific color
+            var value = freqArray[i];
+            if (value > 0) {
+                ctx.fillStyle = hot(value).hex();
+            } else {
+                // ctx.fillStyle = '#ffaa00';
+            }
+            // ctx.fillStyle = hot(value).hex();
+
+
+            // draw the line at the right side of the canvas
+            ctx.fillRect(800 - 1, 512 - i, 1, 1);
+        }
+
+        // set translate on the canvas
+        ctx.translate(-1, 0);
+        // draw the copied image
+        ctx.drawImage(tempCanvas, 0, 0, 800, 512, 0, 0, 800, 512);
+
+        // reset the transformation matrix
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    }
+
+    function drawWaveform() {
+
+        // copy the current canvas onto the temp canvas
+        var canvas = document.getElementById("wCanvas");
+        var height = canvas.height;
+        var width = canvas.width;
+
+        // clear
+        // wCtx.fillStyle = '#000000';
+        wCtx.clearRect(0, 0, width, height);
+
+
+        // iterate over the elements from the array
+        // for (var i = 0; i < array.length; i++) {
+        // for (var i = 0; i < width; i++) {
+            // console.log(amplitudeArray.length);
+        for (var i = amplitudeArrays.length - 1; i >= 0; i--) {
+            var al = amplitudeArrays[0].length
+            // al = width;
+            // wCtx.fillStyle = hot(i * (aas / 300)).hex();
+            wCtx.fillStyle = hot(200 - (i * (aas / 300))).hex();
+            // wCtx.globalAlpha = 1 - (i / aas);
+            wCtx.globalAlpha = 1 - (i / (aas + 20));
+            // wCtx.fillStyle = hot(i).hex();
+            // wCtx.fillStyle = '#aa3399';
+            for (var j = 0; j < al; j++) {
+                // draw each pixel with the specific color
+                var value = amplitudeArrays[i][j];
+                // if (value > 0) {
+                //     ctx.fillStyle = hot(value).hex();
+                // } else {
+                //     // ctx.fillStyle = '#ffaa00';
+                // }
+                // // ctx.fillStyle = hot(value).hex();
+                // wCtx.fillRect(i, value / 255 * height, 1, 1);
+                wCtx.fillRect(j / al * width, height * (value / 255), 1, 1);
+
+
+                // draw the line at the right side of the canvas
+                // ctx.fillRect(800 - 1, 512 - i, 1, 1);
+            }
+        }
+        // set translate on the canvas
+        // ctx.translate(-1, 0);
+        // draw the copied image
+        // ctx.drawImage(tempCanvas, 0, 0, 800, 512, 0, 0, 800, 512);
+
+        // reset the transformation matrix
+        // ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    }
+
+</script>
+
+</body>
+</html>

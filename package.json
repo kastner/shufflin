@@ -1,0 +1,14 @@
+{
+  "name": "noise_shuffle",
+  "version": "0.0.0",
+  "description": "Help me shuffle",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Erik Kastner",
+  "license": "BSD",
+  "devDependencies": {
+    "wavesurfer.js": "~0.1"
+  }
+}
