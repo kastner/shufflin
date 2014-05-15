@@ -68,10 +68,10 @@ function createLPInputFilter(output) {
     var analyserSmooth;
     var javascriptNode;
     var amplitudeArray;
-    var aas=35;
+    var aas=5;
     var amplitudeArrays = new Array(aas);
     var a2;
-    var sampleSize = 1024;
+    var sampleSize = 4096;
 
 
     // get the context from the canvas to draw on
@@ -102,8 +102,8 @@ function createLPInputFilter(output) {
 
     // loadSound("wagner-short.ogg");
 
-// Switch to javascript node
-// add to the array of arrays
+// ✅ Switch to javascript node
+// ✅ add to the array of arrays (I think this was already done)
 // check zero crossings
 // THEN process
 
@@ -115,12 +115,12 @@ function createLPInputFilter(output) {
         // javascriptNode.connect(context.destination);
 
 
-        // javascriptNode = context.createScriptProcessor(sampleSize, 1, 1);
-        // javascriptNode.onaudioprocess = pAudio;
+        javascriptNode = context.createScriptProcessor(sampleSize, 1, 1);
+        javascriptNode.onaudioprocess = pAudio;
 
         analyser = context.createAnalyser();
         analyser.smoothingTimeConstant = 0;
-        analyser.fftSize = sampleSize;
+        // analyser.fftSize = sampleSize;
 
         // analyserSmooth = context.createAnalyser();
         // analyserSmooth.smoothingTimeConstant = 1;
@@ -138,7 +138,8 @@ function createLPInputFilter(output) {
         // analyser.connect(analyserSmooth);
         // analyserSmooth.connect(javascriptNode);
         // analyser.connect(javascriptNode);
-        // javascriptNode.connect(context.destination);
+        analyser.connect(javascriptNode);
+        javascriptNode.connect(context.destination);
         // setup a analyzer
 
         // analyser.smoothingTimeConstant = 0.8;
@@ -159,7 +160,7 @@ function createLPInputFilter(output) {
         // analyserSmooth.connect(analyser);
         // analyser.connect(context.destination);
 
-        analyser.connect(context.destination);
+        // analyser.connect(context.destination);
 
         // sourceNode.connect(context.destination);
     }
@@ -220,7 +221,7 @@ var rafID;
                 // window.requestAnimationFrame(drawSpectrogram);
             // }
 
-            window.requestAnimationFrame(pAudio);
+            // window.requestAnimationFrame(pAudio);
         }
     }
 
@@ -288,12 +289,12 @@ var rafID;
             // start it up
             $this.html("Stop");
             going = true;
-            rafID = window.requestAnimationFrame(pAudio);
+            // rafID = window.requestAnimationFrame(pAudio);
         } else {
             // stop
             $this.html("Start");
             going = false;
-            window.cancelAnimationFrame(rafID);
+            // window.cancelAnimationFrame(rafID);
         }
     });
 
@@ -357,7 +358,8 @@ var rafID;
         // for (var i = 0; i < array.length; i++) {
         // for (var i = 0; i < width; i++) {
             // console.log(amplitudeArray.length);
-        for (var i = amplitudeArrays.length - 1; i >= 0; i--) {
+        // for (var i = amplitudeArrays.length - 1; i >= 0; i--) {
+        for (var i = 0; i == 0; i++) {
             var al = amplitudeArrays[0].length
             // al = width;
             // wCtx.fillStyle = hot(i * (aas / 300)).hex();

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Faro!</title>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js" type="text/javascript"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+
+  <link href="data:image/gif;" rel="icon" type="image/x-icon" />
+
+  <!-- Bootstrap -->
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="http://simonwhitaker.github.com/github-fork-ribbon-css/gh-fork-ribbon.css">
+  <style type="text/css" media="screen">
+    /* Card - http://zachwaugh.github.io/Helveticards/*/
+    .card { background-color: #fff; -moz-border-radius: 10px; -webkit-border-radius: 10px; -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); float: left; height: 280px; margin: 0 15px 15px 0; position: relative; width: 200px; z-index: 2; }
+    .card .back { background-color: red; -webkit-transform: rotateY(180deg); }
+    .card.flipped { -webkit-transform: rotateY(180deg); }
+    .card.hearts, .card.diamonds { color: red; }
+    .card.spades, .card.clubs { color: black; }
+
+    .card .corner { line-height: 1; overflow: hidden; position: absolute; text-align: center; }
+    .card .corner span { display: block; font-size: 24px; font-weight: bold; }
+    .card .corner .number { font-size: 32px; height: 32px; line-height: 32px; }
+    .card.ten .corner .number { font-size: 24px; letter-spacing: -1.8px; }
+    .card .corner.top { left: 8px; top: 12px; }
+    .card .corner.bottom { bottom: 12px; right: 8px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+
+    .card .suit { font-size: 64px; font-weight: bold; height: 60px; line-height: 60px; overflow: hidden; position: absolute; text-align: center; width: 50px; }
+    .card .top_center { left: 76px; top: 24px; }
+    .card .top_left { left: 30px; top: 24px; }
+    .card .top_right { right: 30px; top: 24px; }
+
+    .card .middle_center { left: 76px; top: 110px; }
+    .card .middle_top { left: 76px; top: 70px; }
+    .card .middle_bottom { bottom: 70px; left: 76px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+    .card .middle_left { left: 30px; top: 110px; }
+    .card .middle_right { right: 30px; top: 110px; }
+    .card .middle_top_center { left: 76px; top: 60px; }
+    .card .middle_top_left { left: 30px; top: 80px; }
+    .card .middle_top_right { right: 30px; top: 80px; }
+    .card .middle_bottom_left { bottom: 80px; left: 30px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+    .card .middle_bottom_right { bottom: 80px; right: 30px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+    .card .middle_bottom_center { bottom: 60px; left: 76px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+
+    .card .bottom_center { bottom: 24px; left: 76px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+    .card .bottom_left { bottom: 24px; left: 30px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+    .card .bottom_right { bottom: 24px; right: 30px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+
+    body {
+      -webkit-transform: scale(0.5);
+      width: 111% !important;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="container">
+  </div>
+
+  <script id="card-template" type="text/template">
+    <div class="card value_<%=value%> <%=suit%>">
+      <div class="corner top">
+        <span class="number"><%=value%></span>
+        <span><%=suitChar%></span>
+      </div>
+
+      <span class="suit top_center"><%=suitChar%></span>
+      <span class="suit middle_center"><%=suitChar%></span>
+      <span class="suit bottom_center"><%=suitChar%></span>
+
+      <div class="corner bottom">
+        <span class="number"><%=value%></span>
+        <span><%=suitChar%></span>
+      </div>
+    </div>
+  </script>
+  <script type="text/javascript" charset="utf-8">
+    // Steps:
+    // 1. stacked, A-spades on top
+    // 2. spread
+    // 3. drop half down
+    // 4. re-spread
+    // 5. weave
+    // 6. bring half up
+
+    // cards
+    var cards = [
+      {value: 'A', suit: 'diamonds'},
+      {value: '2', suit: 'diamonds'},
+      {value: '3', suit: 'diamonds'},
+      {value: '4', suit: 'diamonds'},
+      {value: '5', suit: 'diamonds'},
+      {value: '6', suit: 'diamonds'},
+      {value: '7', suit: 'diamonds'},
+      {value: '8', suit: 'diamonds'},
+      {value: '9', suit: 'diamonds'},
+      {value: 'J', suit: 'diamonds'},
+      {value: 'Q', suit: 'diamonds'},
+      {value: 'K', suit: 'diamonds'},
+      {value: 'A', suit: 'clubs'},
+      {value: '2', suit: 'clubs'},
+      {value: '3', suit: 'clubs'},
+      {value: '4', suit: 'clubs'},
+      {value: '5', suit: 'clubs'},
+      {value: '6', suit: 'clubs'},
+      {value: '7', suit: 'clubs'},
+      {value: '8', suit: 'clubs'},
+      {value: '9', suit: 'clubs'},
+      {value: 'J', suit: 'clubs'},
+      {value: 'Q', suit: 'clubs'},
+      {value: 'K', suit: 'clubs'},
+      {value: 'K', suit: 'hearts'},
+      {value: 'Q', suit: 'hearts'},
+      {value: 'J', suit: 'hearts'},
+      {value: '9', suit: 'hearts'},
+      {value: '8', suit: 'hearts'},
+      {value: '7', suit: 'hearts'},
+      {value: '6', suit: 'hearts'},
+      {value: '5', suit: 'hearts'},
+      {value: '4', suit: 'hearts'},
+      {value: '3', suit: 'hearts'},
+      {value: '2', suit: 'hearts'},
+      {value: 'A', suit: 'hearts'},
+      {value: 'K', suit: 'spades'},
+      {value: 'Q', suit: 'spades'},
+      {value: 'J', suit: 'spades'},
+      {value: '9', suit: 'spades'},
+      {value: '8', suit: 'spades'},
+      {value: '7', suit: 'spades'},
+      {value: '6', suit: 'spades'},
+      {value: '5', suit: 'spades'},
+      {value: '4', suit: 'spades'},
+      {value: '3', suit: 'spades'},
+      {value: '2', suit: 'spades'},
+      {value: 'A', suit: 'spades'}
+    ];
+
+    cards = _.each(cards, function(card) {
+      var suitChar;
+      switch(card['suit']) {
+        case 'diamonds':
+          suitChar = "&#9830;"
+          break;
+        case 'clubs':
+          suitChar = "&#9827;"
+          break;
+        case 'spades':
+          suitChar = "&#9824;"
+          break;
+        case 'hearts':
+          suitChar = "&#9829;"
+          break;
+      }
+
+      card['suitChar'] = suitChar;
+      return card;
+    })
+
+    // copy new deck order so we have something to compare against
+    var nDO = cards;
+
+    var shuffleCount = 0;
+    var shuffleType = "out";
+
+    // d3
+    var margin = {top: 20, right: 10, bottom: 20, left: 10};
+    var width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scale.identity()
+      .domain([0, width]);
+
+    var y = d3.scale.identity()
+      .domain([0, height]);
+
+    // var svg = d3.select("body").append("svg")
+    //   .attr("width", width + margin.left + margin.right)
+    //   .attr("height", height + margin.top + margin.bottom)
+    // .append("g")
+    //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var body = d3.select("body");
+    // height = innerHeight,
+    // clientY0,
+    // pageY0,
+    // pageYMin = 0,
+    // pageYMax,
+    // dragSamples;
+    /*
+    body.transition()
+      .duration(500)
+      .ease("cubic-out")
+      .styleTween("-webkit-transform", function() {
+        if (s1) {
+          var i;
+          if (s1.y < pageYMin) i = d3.interpolateNumber(-(s1.y - pageYMin) / 3, 0);
+          if (s1.y > pageYMax) i = d3.interpolateNumber(-(s1.y - pageYMax) / 3, 0);
+          return i && function(t) { return "translate3d(0," + i(t) + "px,0)"; };
+        }
+      })
+      .tween("scroll", function() {
+        var i = d3.interpolateNumber(pageYOffset, y);
+        return function(t) { window.scrollTo(0, i(t)); };
+      });
+}
+    */
+
+    var compiled = _.template(document.getElementById("card-template").innerHTML);
+
+    var cDivs = body.selectAll("div")
+      .data(cards)
+      .enter().append("div")
+      .attr("class", "card")
+      .html(compiled);
+
+    // cDivs.append("div").attr("class", "corner");
+
+    /*
+            <div class="card three">
+          <div class="corner top">
+            <span class="number">3</span>
+            <span>&#9827;</span>
+          </div>
+
+          <span class="suit top_center">&#9827;</span>
+          <span class="suit middle_center">&#9827;</span>
+          <span class="suit bottom_center">&#9827;</span>
+
+          <div class="corner bottom">
+            <span class="number">3</span>
+            <span>&#9827;</span>
+          </div>
+        </div>
+      */
+  </script>
+</body>
