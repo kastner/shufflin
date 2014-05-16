@@ -30,7 +30,6 @@
 
     var context = new AudioContext();
 
-    var microphone;
 
     navigator.webkitGetUserMedia({audio:true}, function (stream) {
         microphone = context.createMediaStreamSource(stream);
@@ -50,6 +49,15 @@
                 //playSound(buffer);
         // }, function(e) { console.log(e); });
 
+        gain = context.createGain();
+        gain.gain.value = 0;
+        // analyser.connect(javascriptNode);
+        microphone.connect(gain);
+        gain.connect(analyser);
+        analyser.connect(javascriptNode);
+        javascriptNode.connect(context.destination);
+
+
     }, function(e) { console.log(e); });
 
 var lpInputFilter=null;
@@ -58,7 +66,7 @@ var lpInputFilter=null;
 // the top end in live speaker scenarios.
 function createLPInputFilter(output) {
     lpInputFilter = context.createBiquadFilter();
-    lpInputFilter.frequency.value = 1024;
+    lpInputFilter.frequency.value = 9999;
     return lpInputFilter;
 }
 
@@ -68,10 +76,14 @@ function createLPInputFilter(output) {
     var analyserSmooth;
     var javascriptNode;
     var amplitudeArray;
-    var aas=5;
+    var gainNode;
+    var microphone;
+    var aas=15;
     var amplitudeArrays = new Array(aas);
+    var awesomeWave;
+    var hasAwesome = false;
     var a2;
-    var sampleSize = 4096;
+    var sampleSize = 2048;
 
 
     // get the context from the canvas to draw on
@@ -133,13 +145,12 @@ function createLPInputFilter(output) {
             amplitudeArrays[i] = new Uint8Array(analyser.frequencyBinCount);
         }
         freqArray = new Uint8Array(analyser.frequencyBinCount);
+        awesomeWave = new Uint8Array(analyser.frequencyBinCount);
 
         // Now connect the nodes together
         // analyser.connect(analyserSmooth);
         // analyserSmooth.connect(javascriptNode);
         // analyser.connect(javascriptNode);
-        analyser.connect(javascriptNode);
-        javascriptNode.connect(context.destination);
         // setup a analyzer
 
         // analyser.smoothingTimeConstant = 0.8;
@@ -215,6 +226,7 @@ var rafID;
                 // drawWaveform(a2);
                 drawWaveform();
                 drawSpectrogram();
+                analyzeWave();
             // }
             // window.requestAnimationFrame(drawWaveform);
             // if (Math.random() > 0.9) {
@@ -222,6 +234,134 @@ var rafID;
             // }
 
             // window.requestAnimationFrame(pAudio);
+        }
+    }
+var gCrossings = [];
+var crossings = [];
+
+    function analyzeWave() {
+        // var crossings = [];
+        crossings = [];
+        var lastValue=0;
+        var lastValuePosition = 0;
+        var localMin = 0;
+        var localMinPos = 0;
+        var localMax = 0;
+        var localMaxPos = 0;
+        var localMinChanged = false;
+        var localMaxChanged = false;
+        var amplitude = 0;
+        var cycleLength = 0;
+        var moving = 0;
+        var maxCrossings = 0;
+
+        for (var j = aas - 1; j >= 0; j--) {
+            var cbf = crossings.length;
+            var l = amplitudeArrays[j].length;
+            for (var i = 0; i < l; i++) {
+                // center the value
+                var v = amplitudeArrays[j][i] - 127;
+                localMinChanged = localMaxChanged = false;
+
+                if (v < lastValue) {
+                    moving = -1;
+                } else if (v > lastValue) {
+                    moving = 1;
+                }
+
+                if (v < localMin && v < -1 && v > -127) {
+                    // update the min value and position
+
+                    localMin = v;
+                    localMinPos = i;
+                    localMinChanged = true;
+                    // console.log('movin on DOWN ' + v + ' - mp:' + localMinPos + ' xp:' + localMaxPos + ' changed? ' + localMinChanged + ' max changed? ' + localMaxChanged);
+                }
+
+                if (v > localMax && v > 1) {
+
+                    localMax = v;
+                    localMaxPos = i;
+                    localMaxChanged = true;
+                    // console.log('movin on up ' + v + ' - mp:' + localMinPos + ' xp:' + localMaxPos + ' changed? ' + localMinChanged + ' max changed? ' + localMaxChanged);
+                }
+
+                // a better idea is to only do the crossing stuff WHEN we cross...
+                // if the local min and max aren't changing, we have the range I think
+                var crossedZero = false;
+
+                // arbitrary... just to give some padding
+                var threshold = 5;
+
+                if (v != 0 && localMaxPos != localMinPos && localMaxPos !=0 && localMinPos != 0) {
+                    // peak, then trough, then now
+                    if (localMaxPos > localMinPos) {
+                        if (v > threshold) {
+                            crossedZero = true;
+                        }
+                    } else {
+                        if (v < threshold * -1) {
+                            crossedZero = true;
+                        }
+                    }
+                // if (localMinPos < localMaxPos &&)
+                // if (!localMinChanged && !localMaxChanged
+                    // && v != 0 && localMaxPos != localMinPos
+                    // && localMaxPos != 0
+                    // && localMinPos != 0) {
+                    if (crossedZero) {
+                        amplitude = localMax - localMin;
+
+                        cycleLength = Math.abs(localMaxPos - localMinPos);
+
+                        // if localMaxPos came before localMinPos, we were descending
+                        // do we care?
+
+                        crossings.push([cycleLength, amplitude, [localMin, localMinPos], [localMax, localMaxPos]]);
+
+                        // we have to reset either local min or max..
+                        if (localMaxPos < localMinPos) {
+                            localMaxPos = 0;
+                            localMax = 0;
+                        }
+                        if (localMaxPos > localMinPos) {
+                            localMinPos = 0;
+                            localMin = 0;
+                        }
+                        // console.log('done with crossing ' + amplitude + ' - cl: ' + cycleLength + ' - mp:' + localMinPos + ' xp:' + localMaxPos + ' changed? ' + localMinChanged + ' max changed? ' + localMaxChanged + ' .' + localMin + ' .' + localMax);
+                    }
+                }
+
+                lastValue = v;
+
+            }
+            var cCount = crossings.length - cbf;
+            if (cCount > maxCrossings) {
+                maxCrossings = cCount;
+                awesomeWave.set(amplitudeArrays[j]);
+                hasAwesome = true;
+            }
+
+
+                // if it's negative, we have a positive and a negative
+                // i.e. we cross zero
+                // var sDiff = v * lastValue;
+
+                // // magical threshold... eh who cares
+                // if (sDiff < -15) {
+                //     // need to do bounds checking here...
+                //     var width = i - lastValuePosition;
+                //     if (lastValuePosition > i) { width = 0; lastValuePosition = 0;}
+                //     crossings.push([v, lastValue, i, j, width, sDiff]);
+                //     lastValuePosition = i;
+                // }
+
+                // if (v != 0) { lastValue = v; }
+        }
+
+        // more magic
+        if (crossings.length >= 5) {
+            gCrossings = crossings;
         }
     }
 
@@ -359,6 +499,15 @@ var rafID;
         // for (var i = 0; i < width; i++) {
             // console.log(amplitudeArray.length);
         // for (var i = amplitudeArrays.length - 1; i >= 0; i--) {
+        if (hasAwesome) {
+            var al = awesomeWave.length;
+            wCtx.fillStyle = 'red';
+            wCtx.globalAlpha = 1;
+
+            for (var i = 0; i < al; i++) {
+                wCtx.fillRect(i / al * width, height * (awesomeWave[i] / 255), 1, 1);
+            }
+        }
         for (var i = 0; i == 0; i++) {
             var al = amplitudeArrays[0].length
             // al = width;
