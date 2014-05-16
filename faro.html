@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="http://simonwhitaker.github.com/github-fork-ribbon-css/gh-fork-ribbon.css">
   <style type="text/css" media="screen">
     /* Card - http://zachwaugh.github.io/Helveticards/*/
+    /*
     .card { background-color: #fff; -moz-border-radius: 10px; -webkit-border-radius: 10px; -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); float: left; height: 280px; margin: 0 15px 15px 0; position: relative; width: 200px; z-index: 2; }
     .card .back { background-color: red; -webkit-transform: rotateY(180deg); }
     .card.flipped { -webkit-transform: rotateY(180deg); }
@@ -49,17 +50,289 @@
     .card .bottom_left { bottom: 24px; left: 30px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
     .card .bottom_right { bottom: 24px; right: 30px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
 
-    body {
+    */
+/*    body {
       -webkit-transform: scale(0.5);
       width: 111% !important;
     }
+*/
+    .hearts, .diamonds { color: red; }
+    .spades, .clubs { color: black; }
 
+    /* cards - http://donpark.github.io/scalable-css-playing-cards/demos/css/playingcards.css */
+.card {
+  background-color: #fff;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -moz-border-radius: 0.8em;
+  -webkit-border-radius: 0.8em;
+  border-radius: 0.8em;
+  -moz-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  float: left;
+  width: 16em;
+  height: 22.4em;
+  margin: 0 1.2em 1.2em 0;
+  position: relative;
+  z-index: 2;
+}
+.card.noshadow {
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.card .card-back img {
+  width: 16em;
+  height: 22.4em;
+}
+.card .flipped {
+  -ms-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+}
+.card .heart,
+.card .diamond {
+  color: #df0000;
+}
+.card .corner {
+  line-height: 1;
+  position: absolute;
+  text-align: center;
+}
+.card .corner span {
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+.card .corner .number {
+  font-size: 2em;
+  height: 1.92em/2;
+  line-height: 1.92em/2;
+}
+.card .corner.top {
+  left: 0.64em;
+  top: 0.96em;
+}
+.card .corner.bottom {
+  bottom: 0.96em;
+  right: 0.64em;
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.card .card-ace span.suit.middle_center {
+  font-size: 10.24em;
+  left: 0.45517241379310347em;
+  top: 0.593103448275862em;
+}
+.card .card-ten .corner .number {
+  font-size: 1.5em;
+}
+.card .face img {
+  position: absolute;
+  left: 2.56em;
+  top: 2.08em;
+  width: 10.8em;
+  height: 18.24em;
+}
+.card .suit {
+  font-size: 5.8em;
+  font-weight: normal;
+  width: 0.6896551724137931em;
+  height: 0.786206896551724em;
+  line-height: 0.786206896551724em;
+  position: absolute;
+  text-align: center;
+}
+.card .suit.top_center {
+  left: 1.0482758620689656em;
+  top: 0.3310344827586207em;
+}
+.card .suit.top_left {
+  left: 0.41379310344827586em;
+  top: 0.3310344827586207em;
+}
+.card .suit.top_right {
+  right: 0.41379310344827586em;
+  top: 0.3310344827586207em;
+}
+.card .suit.middle_center {
+  left: 1.0482758620689656em;
+  top: 1.517241379310345em;
+}
+.card .suit.middle_top {
+  left: 1.0482758620689656em;
+  top: 0.9655172413793103em;
+}
+.card .suit.middle_bottom {
+  bottom: 0.9655172413793103em;
+  left: 1.0482758620689656em;
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.card .suit.middle_left {
+  left: 0.41379310344827586em;
+  top: 1.517241379310345em;
+}
+.card .suit.middle_right {
+  right: 0.41379310344827586em;
+  top: 1.517241379310345em;
+}
+.card .suit.middle_top_center {
+  left: 1.0482758620689656em;
+  top: 0.8275862068965517em;
+}
+.card .suit.middle_top_left {
+  left: 0.41379310344827586em;
+  top: 1.103448275862069em;
+}
+.card .suit.middle_top_right {
+  right: 0.41379310344827586em;
+  top: 1.103448275862069em;
+}
+.card .suit.middle_bottom_left {
+  bottom: 1.103448275862069em;
+  left: 0.41379310344827586em;
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.card .suit.middle_bottom_right {
+  bottom: 1.103448275862069em;
+  right: 0.41379310344827586em;
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.card .suit.middle_bottom_center {
+  bottom: 0.8275862068965517em;
+  left: 1.0482758620689656em;
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.card .suit.bottom_center {
+  bottom: 0.3310344827586207em;
+  left: 1.0482758620689656em;
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.card .suit.bottom_left {
+  bottom: 0.3310344827586207em;
+  left: 0.41379310344827586em;
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.card .suit.bottom_right {
+  bottom: 0.3310344827586207em;
+  right: 0.41379310344827586em;
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.card { font-size: 7px; position: absolute;}
   </style>
 </head>
 <body>
+  <button id="step">Shuffle!</button>
+  <span class="info">Number of shuffles: <span class="num-shuffles">0</span></span>
+  <span class="matched"></span>
   <div id="container">
   </div>
 
+    <script id="card-back" type="text/x-mustache-template">
+      <div class="card-back"><span class="middle_center"><img src="img/back.png"></span></div>
+    </script>
+    <script id="card-2" type="text/x-mustache-template">
+      <div class="card-two <%=suit%>">
+        <div class="corner top"><span class="number">2</span><span><%=symbol%></span></div><span class="suit top_center"><%=symbol%></span><span class="suit bottom_center"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">2</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-3" type="text/x-mustache-template">
+      <div class="card-three <%=suit%>">
+        <div class="corner top"><span class="number">3</span><span><%=symbol%></span></div><span class="suit top_center"><%=symbol%></span><span class="suit middle_center"><%=symbol%></span><span class="suit bottom_center"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">3</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-4" type="text/x-mustache-template">
+      <div class="card-four <%=suit%>">
+        <div class="corner top"><span class="number">4</span><span><%=symbol%></span></div><span class="suit top_left"><%=symbol%></span><span class="suit top_right"><%=symbol%></span><span class="suit bottom_left"><%=symbol%></span><span class="suit bottom_right"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">4</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-5" type="text/x-mustache-template">
+      <div class="card-five <%=suit%>">
+        <div class="corner top"><span class="number">5</span><span><%=symbol%></span></div><span class="suit top_left"><%=symbol%></span><span class="suit top_right"><%=symbol%></span><span class="suit middle_center"><%=symbol%></span><span class="suit bottom_left"><%=symbol%></span><span class="suit bottom_right"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">5</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-6" type="text/x-mustache-template">
+      <div class="card-six <%=suit%>">
+        <div class="corner top"><span class="number">6</span><span><%=symbol%></span></div><span class="suit top_left"><%=symbol%></span><span class="suit top_right"><%=symbol%></span><span class="suit middle_left"><%=symbol%></span><span class="suit middle_right"><%=symbol%></span><span class="suit bottom_left"><%=symbol%></span><span class="suit bottom_right"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">6</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-7" type="text/x-mustache-template">
+      <div class="card-seven <%=suit%>">
+        <div class="corner top"><span class="number">7</span><span><%=symbol%></span></div><span class="suit top_left"><%=symbol%></span><span class="suit top_right"><%=symbol%></span><span class="suit middle_left"><%=symbol%></span><span class="suit middle_top"><%=symbol%></span><span class="suit middle_right"><%=symbol%></span><span class="suit bottom_left"><%=symbol%></span><span class="suit bottom_right"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">7</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-8" type="text/x-mustache-template">
+      <div class="card-eight <%=suit%>">
+        <div class="corner top"><span class="number">8</span><span><%=symbol%></span></div><span class="suit top_left"><%=symbol%></span><span class="suit top_right"><%=symbol%></span><span class="suit middle_left"><%=symbol%></span><span class="suit middle_top"><%=symbol%></span><span class="suit middle_right"><%=symbol%></span><span class="suit middle_bottom"><%=symbol%></span><span class="suit bottom_left"><%=symbol%></span><span class="suit bottom_right"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">8</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-9" type="text/x-mustache-template">
+      <div class="card-nine <%=suit%>">
+        <div class="corner top"><span class="number">9</span><span><%=symbol%></span></div><span class="suit top_left"><%=symbol%></span><span class="suit top_right"><%=symbol%></span><span class="suit middle_top_left"><%=symbol%></span><span class="suit middle_center"><%=symbol%></span><span class="suit middle_top_right"><%=symbol%></span><span class="suit bottom_left"><%=symbol%></span><span class="suit bottom_right"><%=symbol%></span><span class="suit middle_bottom_left"><%=symbol%></span><span class="suit middle_bottom_right"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">9</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-10" type="text/x-mustache-template">
+      <div class="card-ten <%=suit%>">
+        <div class="corner top"><span class="number">10</span><span><%=symbol%></span></div><span class="suit top_left"><%=symbol%></span><span class="suit top_right"><%=symbol%></span><span class="suit middle_top_left"><%=symbol%></span><span class="suit middle_top_center"><%=symbol%></span><span class="suit middle_top_right"><%=symbol%></span><span class="suit bottom_left"><%=symbol%></span><span class="suit bottom_right"><%=symbol%></span><span class="suit middle_bottom_center"><%=symbol%></span><span class="suit middle_bottom_left"><%=symbol%></span><span class="suit middle_bottom_right"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">10</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-J" type="text/x-mustache-template">
+      <div class="card-jack <%=suit%>">
+        <div class="corner top"><span class="number">J</span><span><%=symbol%></span></div><span class="face middle_center"><img src="img/face-jack-<%=suit%>.png"></span>
+        <div class="corner bottom"><span class="number">J</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-Q" type="text/x-mustache-template">
+      <div class="card-queen <%=suit%>">
+        <div class="corner top"><span class="number">Q</span><span><%=symbol%></span></div><span class="face middle_center"><img src="img/face-queen-<%=suit%>.png"></span>
+        <div class="corner bottom"><span class="number">Q</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-K" type="text/x-mustache-template">
+      <div class="card-king <%=suit%>">
+        <div class="corner top"><span class="number">K</span><span><%=symbol%></span></div><span class="face middle_center"><img src="img/face-king-<%=suit%>.png"></span>
+        <div class="corner bottom"><span class="number">K</span><span><%=symbol%></span></div>
+      </div>
+    </script>
+    <script id="card-A" type="text/x-mustache-template">
+      <div class="card-ace <%=suit%>">
+        <div class="corner top"><span class="number">A</span><span><%=symbol%></span></div><span class="suit middle_center"><%=symbol%></span>
+        <div class="corner bottom"><span class="number">A</span><span><%=symbol%></span></div>
+      </div>
+    </script>
   <script id="card-template" type="text/template">
     <div class="card value_<%=value%> <%=suit%>">
       <div class="corner top">
@@ -78,6 +351,16 @@
     </div>
   </script>
   <script type="text/javascript" charset="utf-8">
+    var ctemplates = {};
+    _.chain(document.querySelectorAll("script[type='text/x-mustache-template']"))
+      .map(function(element) {
+        ctemplates[element.id] = _.template(element.innerHTML);
+      });
+
+    var compiled = function(card) {
+      return ctemplates['card-' + card.value](card);
+    }
+    // _.map($("script[type='text/x-mustache-template']"), console.log);
     // Steps:
     // 1. stacked, A-spades on top
     // 2. spread
@@ -88,74 +371,78 @@
 
     // cards
     var cards = [
-      {value: 'A', suit: 'diamonds'},
-      {value: '2', suit: 'diamonds'},
-      {value: '3', suit: 'diamonds'},
-      {value: '4', suit: 'diamonds'},
-      {value: '5', suit: 'diamonds'},
-      {value: '6', suit: 'diamonds'},
-      {value: '7', suit: 'diamonds'},
-      {value: '8', suit: 'diamonds'},
-      {value: '9', suit: 'diamonds'},
-      {value: 'J', suit: 'diamonds'},
-      {value: 'Q', suit: 'diamonds'},
-      {value: 'K', suit: 'diamonds'},
-      {value: 'A', suit: 'clubs'},
-      {value: '2', suit: 'clubs'},
-      {value: '3', suit: 'clubs'},
-      {value: '4', suit: 'clubs'},
-      {value: '5', suit: 'clubs'},
-      {value: '6', suit: 'clubs'},
-      {value: '7', suit: 'clubs'},
-      {value: '8', suit: 'clubs'},
-      {value: '9', suit: 'clubs'},
-      {value: 'J', suit: 'clubs'},
-      {value: 'Q', suit: 'clubs'},
-      {value: 'K', suit: 'clubs'},
-      {value: 'K', suit: 'hearts'},
-      {value: 'Q', suit: 'hearts'},
-      {value: 'J', suit: 'hearts'},
-      {value: '9', suit: 'hearts'},
-      {value: '8', suit: 'hearts'},
-      {value: '7', suit: 'hearts'},
-      {value: '6', suit: 'hearts'},
-      {value: '5', suit: 'hearts'},
-      {value: '4', suit: 'hearts'},
-      {value: '3', suit: 'hearts'},
-      {value: '2', suit: 'hearts'},
-      {value: 'A', suit: 'hearts'},
-      {value: 'K', suit: 'spades'},
-      {value: 'Q', suit: 'spades'},
-      {value: 'J', suit: 'spades'},
-      {value: '9', suit: 'spades'},
-      {value: '8', suit: 'spades'},
-      {value: '7', suit: 'spades'},
-      {value: '6', suit: 'spades'},
-      {value: '5', suit: 'spades'},
-      {value: '4', suit: 'spades'},
-      {value: '3', suit: 'spades'},
-      {value: '2', suit: 'spades'},
-      {value: 'A', suit: 'spades'}
+      {value: 'A',  suit: 'hearts'},
+      {value: '2',  suit: 'hearts'},
+      {value: '3',  suit: 'hearts'},
+      {value: '4',  suit: 'hearts'},
+      {value: '5',  suit: 'hearts'},
+      {value: '6',  suit: 'hearts'},
+      {value: '7',  suit: 'hearts'},
+      {value: '8',  suit: 'hearts'},
+      {value: '9',  suit: 'hearts'},
+      {value: '10', suit: 'hearts'},
+      {value: 'J',  suit: 'hearts'},
+      {value: 'Q',  suit: 'hearts'},
+      {value: 'K',  suit: 'hearts'},
+      {value: 'A',  suit: 'clubs'},
+      {value: '2',  suit: 'clubs'},
+      {value: '3',  suit: 'clubs'},
+      {value: '4',  suit: 'clubs'},
+      {value: '5',  suit: 'clubs'},
+      {value: '6',  suit: 'clubs'},
+      {value: '7',  suit: 'clubs'},
+      {value: '8',  suit: 'clubs'},
+      {value: '9',  suit: 'clubs'},
+      {value: '10', suit: 'clubs'},
+      {value: 'J',  suit: 'clubs'},
+      {value: 'Q',  suit: 'clubs'},
+      {value: 'K',  suit: 'clubs'},
+      {value: 'K',  suit: 'diamonds'},
+      {value: 'Q',  suit: 'diamonds'},
+      {value: 'J',  suit: 'diamonds'},
+      {value: '10', suit: 'diamonds'},
+      {value: '9',  suit: 'diamonds'},
+      {value: '8',  suit: 'diamonds'},
+      {value: '7',  suit: 'diamonds'},
+      {value: '6',  suit: 'diamonds'},
+      {value: '5',  suit: 'diamonds'},
+      {value: '4',  suit: 'diamonds'},
+      {value: '3',  suit: 'diamonds'},
+      {value: '2',  suit: 'diamonds'},
+      {value: 'A',  suit: 'diamonds'},
+      {value: 'K',  suit: 'spades'},
+      {value: 'Q',  suit: 'spades'},
+      {value: 'J',  suit: 'spades'},
+      {value: '10', suit: 'spades'},
+      {value: '9',  suit: 'spades'},
+      {value: '8',  suit: 'spades'},
+      {value: '7',  suit: 'spades'},
+      {value: '6',  suit: 'spades'},
+      {value: '5',  suit: 'spades'},
+      {value: '4',  suit: 'spades'},
+      {value: '3',  suit: 'spades'},
+      {value: '2',  suit: 'spades'},
+      {value: 'A',  suit: 'spades'}
     ];
 
     cards = _.each(cards, function(card) {
       var suitChar;
       switch(card['suit']) {
         case 'diamonds':
-          suitChar = "&#9830;"
+          suitChar = "&diams;"
           break;
         case 'clubs':
           suitChar = "&#9827;"
           break;
         case 'spades':
-          suitChar = "&#9824;"
+          suitChar = "&spades;"
           break;
         case 'hearts':
-          suitChar = "&#9829;"
+          suitChar = "&hearts;"
           break;
       }
 
-      card['suitChar'] = suitChar;
+      card['symbol'] = suitChar;
       return card;
     })
 
@@ -207,15 +494,204 @@
       });
 }
     */
+    var duration = 700;
+    var ease = "out";
 
-    var compiled = _.template(document.getElementById("card-template").innerHTML);
+function mapping(d) {
+  return d.value + d.suit;
+}
 
-    var cDivs = body.selectAll("div")
-      .data(cards)
+    // var compiled = _.template(document.getElementById("card-template").innerHTML);
+    // var compiled = _.template(document.getElementById("card-template").innerHTML);
+    var allCards = [cards];
+    console.log(allCards);
+
+    var cDivs = body.selectAll(".container")
+      .data(cards, mapping)
       .enter().append("div")
       .attr("class", "card")
-      .html(compiled);
+      .html(compiled)
+      .style('left', function(d, i) { return (i * 15) + "px";})
+      .style('top', '50px')
+      .style('z-index', function(d, i) { return i*2;});
 
+
+
+    d3.select('#step').on("click", function() {
+      // shuffle
+      var tcards = [];
+      var pCards = allCards[allCards.length - 1];
+      for (var i = 0; i < 52; i++) {
+        tcards[(i % 26) * 2 + Math.floor(i / 26)] = pCards[i];
+      }
+
+      allCards.push(tcards);
+      // console.log(allCards);
+
+      // now do something
+      // WHY DOES THIS WORK? ;)
+      cDivs.data(allCards[allCards.length - 2], mapping)
+        // .order()
+        .transition()
+        .ease(ease)
+        .duration(duration)
+        .style('top', function(d, i) {
+          return i >= 26 ? '250px' : '50px';
+        })
+
+      d3.timer(function () {
+        cDivs.data(allCards[allCards.length - 1], mapping)
+          .style('z-index', function(d, i) {
+            return i*2;
+          })
+          .transition()
+          .ease('out')
+          .duration(duration)
+          .style('left', function(d, i) {return (i * 15) + 'px'})
+            .transition()
+            .duration(duration)
+            .delay(duration * 1.6)
+            // .delay(function(d, i) { return i / 52 * duration; })
+
+            .style('top', '50px')
+
+            // .ease(ease)
+
+          // .each('end', function () {
+
+          // })
+        d3.timer(function () {
+          // debugger;
+          d3.select('.num-shuffles')
+            .text(allCards.length - 1)
+          d3.select('.matched')
+            .text(JSON.stringify(allCards[allCards.length - 1]) == JSON.stringify(allCards[0]) ? "Matched!!" : "not matched").toString()
+          return true;
+        }, duration*2);
+        return true;
+      }, duration);
+
+        // .each('end', function () {
+        //   d3.selectAll('.card')
+        //     .data(allCards[allCards.length - 1], mapping)
+        //     // .order()
+        //       .style('z-index', function(d, i) { return i*2; })
+        //         .transition()
+        //         .style('top', function(d, i) { return i >= 26 ? '250px' : '50px'; })
+        //         .duration(duration)
+        //         .ease(ease)
+        //         .each('end', function () {
+        //           d3.selectAll('.card')
+        //             .transition()
+        //             .style('top', function(d, i) { return i >= 26 ? '250px' : '50px'; })
+        //             .duration(duration)
+        //             .ease(ease)
+        //             .style('top', '50px')
+        //         });
+
+        // });
+      // cDivs.data(allCards[allCards.length - 1], mapping)
+      //   // .order()
+      //   .transition()
+      //   .ease("linear")
+      // // cDivs.transition()
+      //   .duration(1000)
+      //   .style('z-index', function(d, i) { return i*2; })
+      //   .style('top', function(d, i) { return i >= 26 ? '250px' : '50px'; })
+      //   // .transition()
+      //   // .duration(1000)
+      //   .style('left', function(d, i) {return (i * 15) + 'px'})
+      //   .each('end', function (node) {
+      //     console.log('f')
+      //     d3.selectAll('.card')
+      //       .transition()
+      //       .style('top', '50px')
+      //   })
+        // .style('top', '50px');
+
+      // d3.timer(function () {
+      //   cDivs.data(allCards[allCards.length - 1], mapping)
+      //     .transition()
+      //     .style('z-index', function(d, i) { return i*2; })
+      //       .transition()
+      //       .duration(1000)
+      //         .style('left', function(d, i) {return (i * 15) + 'px'})
+      //           .transition()
+      //           .duration(1000)
+      //           .style('top', '50px');
+      //   cDivs.order();
+
+      //   return true;
+      // }, 1000);
+        // .transition()
+        //   .duration(1000)
+        //   .style('left', function(d, i) { console.log("i: " + i + " d: " + console.dir(d)); return (i * 15) + 'px'});
+
+    });
+    var poo;
+    d3.select('#stepx').on("click", function() {
+      shuffleCount++;
+      // cDivs.filter(function(d, i) { console.log(i); return i >= 26; })
+      switch(shuffleCount % 2) {
+        case 1:
+          cDivs
+          .data(cards)
+          .transition()
+          .duration(1000)
+          .style('top', function(d, i) { return i >= 26 ? '250px' : '50px'; })
+          // .end()
+            .transition()
+            .style('left', function(d, i) {
+              var r;
+              if (i >= 26) {
+                r = ((i - 26) * 30) + 15;
+              } else {
+                r = i * 30;
+              }
+              return r + 'px';
+              // return ((i >= 26 ? i - 26 : i) * 30) + 'px'
+            });
+          break;
+        case 0:
+          var tcards = [];
+          cDivs
+            .style('z-index', function(d, i) { return (i >= 26) ? (i - 26) * 2 + 1 : i * 2})
+            .transition()
+            .duration(1000)
+            .style('top', function (d, i) {
+              for (var i = 0; i < 52; i++) {
+                if (i >= 26) {
+                  tcards[i * 2] = cards[i];
+                } else {
+                  tcards[(i - 26) * 2 + 1] = cards[i];
+                }
+              }
+
+              cards = tcards;
+              // shuffleCount = 0;
+              return '50px';
+            }).remove();
+          setTimeout(function () {
+            console.log(cards);
+            cDivs = body.selectAll(".container")
+              .data(cards)
+              .enter().append("div")
+              .attr("class", "card")
+              .html(compiled)
+              .style('left', function(d, i) { console.log(d); return (i * 15) + "px";})
+              .style('top', '50px')
+              .style('z-index', function(d, i) { return i*2;});
+
+          }, 1500);
+
+          break;
+        }
+
+
+        // .enter()
+        // .top('left', function(d, i) { return (i * 2)})
+        // .style('left', function(d, i) { return (i * 2)})
+    });
     // cDivs.append("div").attr("class", "corner");
 
     /*
