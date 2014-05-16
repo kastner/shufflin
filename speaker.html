@@ -14,9 +14,9 @@
 <body style="background-color: white;">
 
 <button id="stopStart">Start</button>
-<canvas id="canvas" width="800" height="512" style="display: block; background-color: black ;"></canvas>
+<canvas id="canvas" width="800" height="400" style="display: block; background-color: black ;"></canvas>
 <br>
-<canvas id="wCanvas" width="800" height="55" style="display: block; background-color: black ;"></canvas>
+<canvas id="wCanvas" width="800" height="105" style="display: block; background-color: black ;"></canvas>
 
 <script type="text/javascript">
 
@@ -65,11 +65,12 @@ var lpInputFilter=null;
 // this is ONLY because we have massive feedback without filtering out
 // the top end in live speaker scenarios.
 function createLPInputFilter(output) {
-    // lpInputFilter = context.createBiquadFilter();
-    // lpInputFilter.frequency.value = 10000;
     lpInputFilter = context.createBiquadFilter();
-    lpInputFilter.type = 'lowshelf';
-    lpInputFilter.frequency.value = 10000;
+    // lpInputFilter.type = 'highpass';
+    // lpInputFilter.frequency.value = 1000;
+    // lpInputFilter = context.createBiquadFilter();
+    lpInputFilter.type = 'highpass';
+    lpInputFilter.frequency.value = 20;
     lpInputFilter.gain.value = 40;
     return lpInputFilter;
 }
@@ -82,12 +83,12 @@ function createLPInputFilter(output) {
     var amplitudeArray;
     var gainNode;
     var microphone;
-    var aas=15;
+    var aas=5;
     var amplitudeArrays = new Array(aas);
     var awesomeWave;
     var hasAwesome = false;
     var a2;
-    var sampleSize = 512;
+    var sampleSize = 4096;
     var noiseMean = 0;
     var activeSwipe = false;
 
@@ -102,7 +103,7 @@ function createLPInputFilter(output) {
     var tempCanvas = document.createElement("canvas"),
         tempCtx = tempCanvas.getContext("2d");
     tempCanvas.width=800;
-    tempCanvas.height=512;
+    tempCanvas.height=400;
 
     // used for color distribution
     var hot = chroma.scale(['#000000', '#ff0000', '#ffff00', '#ffffff']).domain([0, 300]).correctLightness(true);
@@ -233,7 +234,7 @@ var rafID;
                 drawWaveform();
                 drawSpectrogram();
                 // analyzeWave();
-                processWave();
+                averageWave();
             // }
             // window.requestAnimationFrame(drawWaveform);
             // if (Math.random() > 0.9) {
@@ -246,8 +247,9 @@ var rafID;
 
     var noiseLevels = [];
     var interesting = [];
+    var interestingCount = 0;
 
-    function processWave() {
+    function averageWave() {
 
         var averageLevel;
         var l = amplitudeArrays[0].length;
@@ -260,19 +262,22 @@ var rafID;
         // try to see if this is the start or end of a swipe
 
         // get 100 waves to figure out the average noise
-        if (noiseMean == 0 && noiseLevels.length < 100) {
+        if (noiseMean == 0 && noiseLevels.length < 10) {
             noiseLevels.push(averageLevel);
         }
 
-        if (noiseMean == 0 && noiseLevels.length >= 100) {
+        if (noiseMean == 0 && noiseLevels.length >= 10) {
             noiseMean = noiseLevels.reduce(function(a,v) { return a+v;} ) / noiseLevels.length;
             console.log("got a mean: " + noiseMean);
         }
 
-        if (noiseMean > 0) {
+        if (noiseMean != 0) {
             // at this kind of level, it's likely a swipe
             if (averageLevel / noiseMean > 20) {
                 for (var i = 0; i < l; i++) { interesting.push(amplitudeArrays[0][i] - 127); }
+            } else if (interesting.length > interestingCount) {
+                interestingCount = interesting.length;
+                investigateInteresting();
             }
         }
 
@@ -280,6 +285,54 @@ var rafID;
 
     }
 
+    var meanWidth;
+    var widths = [];
+    function investigateInteresting() {
+        $("#stopStart").click();
+        var lastChangePos = -1;
+        var lastChangeValue = -1;
+        meanWidth = 0;
+        var l = interesting.length;
+        widths = [];
+        for (var i = 0; i < l; i++) {
+            var v = interesting[i];
+            if (lastChangePos == -1 && Math.abs(v - noiseMean) > 30) {
+                lastChangePos = i;
+                lastChangeValue = v;
+            }
+
+            var difference = Math.abs(v - lastChangeValue);
+
+            // do I want lastchangevalue here or v? or a running average that gets reset?
+            if (difference > Math.abs(lastChangeValue * 1.5) ) {
+                // we probably care about this transition
+                var width = i - lastChangePos;
+                lastChangePos = i;
+                lastChangeValue = v;
+
+                // how many do I need for the average?
+                widths.push(width);
+
+                if (meanWidth == 0 && widths.length >= 10) {
+                    meanWidth = widths.reduce(function(a, v) { return a += v;}) / widths.length;
+                    console.log("have a mean width: " + meanWidth);
+                }
+            }
+        }
+        gd = widths.map(function (w, i) {
+            if (w < meanWidth) {
+                return 1;
+            } else if (w / 2 > meanWidth) {
+                console.log("Problem here.. " + w);
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+    }
+
+    var gd = [];
 var gCrossings = [];
 var crossings = [];
 
@@ -555,12 +608,29 @@ var crossings = [];
         if (interesting.length > 0) {
             var al = interesting.length;
             wCtx.fillStyle = 'white';
+            wCtx.strokeStyle = 'white';
             wCtx.globalAlpha = 1;
 
+            wCtx.beginPath();
+            var lastX, lastY;
+
             for (var i = 0; i < al; i++) {
-                v = interesting[i];
-                wCtx.fillRect(i / al * width, height * ((v + 127) / 255), 1, 1);
+                var v = interesting[i];
+                var x = i / al * width;
+                var y = height * ((v + 127) / 255);
+
+                if (! lastX) {
+                    lastX = x;
+                    lastY = y;
+                    wCtx.moveTo(lastX, lastY);
+                }
+                // wCtx.fillRect(i / al * width, height * ((v + 127) / 255), 1, 1);
+                wCtx.lineTo(x,y);
+                // wCtx.fillRect(i / al * width, height * ((v + 127) / 255), 1, 1);
+                lastX = x;
+                lastY = y;
             }
+            wCtx.stroke();
         }
         for (var i = 0; i == 0; i++) {
             var al = amplitudeArrays[0].length
