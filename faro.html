@@ -246,7 +246,8 @@
   </style>
 </head>
 <body>
-  <button id="step">Shuffle!</button>
+  <button id="shuffleOut">Out Shuffle!</button>
+  <button id="shuffleIn">In Shuffle!</button>
   <span class="info">Number of shuffles: <span class="num-shuffles">0</span></span>
   <span class="matched"></span>
   <div id="container">
@@ -333,23 +334,6 @@
         <div class="corner bottom"><span class="number">A</span><span><%=symbol%></span></div>
       </div>
     </script>
-  <script id="card-template" type="text/template">
-    <div class="card value_<%=value%> <%=suit%>">
-      <div class="corner top">
-        <span class="number"><%=value%></span>
-        <span><%=suitChar%></span>
-      </div>
-
-      <span class="suit top_center"><%=suitChar%></span>
-      <span class="suit middle_center"><%=suitChar%></span>
-      <span class="suit bottom_center"><%=suitChar%></span>
-
-      <div class="corner bottom">
-        <span class="number"><%=value%></span>
-        <span><%=suitChar%></span>
-      </div>
-    </div>
-  </script>
   <script type="text/javascript" charset="utf-8">
     var ctemplates = {};
     _.chain(document.querySelectorAll("script[type='text/x-mustache-template']"))
@@ -446,12 +430,6 @@
       return card;
     })
 
-    // copy new deck order so we have something to compare against
-    var nDO = cards;
-
-    var shuffleCount = 0;
-    var shuffleType = "out";
-
     // d3
     var margin = {top: 20, right: 10, bottom: 20, left: 10};
     var width = 960 - margin.left - margin.right,
@@ -463,46 +441,15 @@
     var y = d3.scale.identity()
       .domain([0, height]);
 
-    // var svg = d3.select("body").append("svg")
-    //   .attr("width", width + margin.left + margin.right)
-    //   .attr("height", height + margin.top + margin.bottom)
-    // .append("g")
-    //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
     var body = d3.select("body");
-    // height = innerHeight,
-    // clientY0,
-    // pageY0,
-    // pageYMin = 0,
-    // pageYMax,
-    // dragSamples;
-    /*
-    body.transition()
-      .duration(500)
-      .ease("cubic-out")
-      .styleTween("-webkit-transform", function() {
-        if (s1) {
-          var i;
-          if (s1.y < pageYMin) i = d3.interpolateNumber(-(s1.y - pageYMin) / 3, 0);
-          if (s1.y > pageYMax) i = d3.interpolateNumber(-(s1.y - pageYMax) / 3, 0);
-          return i && function(t) { return "translate3d(0," + i(t) + "px,0)"; };
-        }
-      })
-      .tween("scroll", function() {
-        var i = d3.interpolateNumber(pageYOffset, y);
-        return function(t) { window.scrollTo(0, i(t)); };
-      });
-}
-    */
+
     var duration = 700;
     var ease = "out";
 
-function mapping(d) {
-  return d.value + d.suit;
-}
+    function mapping(d) {
+      return d.value + d.suit;
+    }
 
-    // var compiled = _.template(document.getElementById("card-template").innerHTML);
-    // var compiled = _.template(document.getElementById("card-template").innerHTML);
     var allCards = [cards];
     console.log(allCards);
 
@@ -517,21 +464,25 @@ function mapping(d) {
 
 
 
-    d3.select('#step').on("click", function() {
+    function shuffle(inOut) {
       // shuffle
       var tcards = [];
       var pCards = allCards[allCards.length - 1];
       for (var i = 0; i < 52; i++) {
-        tcards[(i % 26) * 2 + Math.floor(i / 26)] = pCards[i];
+        // tcards[(i % 26) * 2 + Math.floor(i / 26)] = pCards[i];
+        if (inOut == 'in') {
+          tcards[(i % 26) * 2 + Math.floor((51-i) / 26)] = pCards[i];
+        } else {
+          tcards[(i % 26) * 2 + Math.floor(i / 26)] = pCards[i];
+        }
+
       }
 
       allCards.push(tcards);
-      // console.log(allCards);
 
       // now do something
       // WHY DOES THIS WORK? ;)
       cDivs.data(allCards[allCards.length - 2], mapping)
-        // .order()
         .transition()
         .ease(ease)
         .duration(duration)
@@ -551,17 +502,9 @@ function mapping(d) {
             .transition()
             .duration(duration)
             .delay(duration * 1.6)
-            // .delay(function(d, i) { return i / 52 * duration; })
-
             .style('top', '50px')
 
-            // .ease(ease)
-
-          // .each('end', function () {
-
-          // })
         d3.timer(function () {
-          // debugger;
           d3.select('.num-shuffles')
             .text(allCards.length - 1)
           d3.select('.matched')
@@ -570,146 +513,15 @@ function mapping(d) {
         }, duration*2);
         return true;
       }, duration);
+    }
 
-        // .each('end', function () {
-        //   d3.selectAll('.card')
-        //     .data(allCards[allCards.length - 1], mapping)
-        //     // .order()
-        //       .style('z-index', function(d, i) { return i*2; })
-        //         .transition()
-        //         .style('top', function(d, i) { return i >= 26 ? '250px' : '50px'; })
-        //         .duration(duration)
-        //         .ease(ease)
-        //         .each('end', function () {
-        //           d3.selectAll('.card')
-        //             .transition()
-        //             .style('top', function(d, i) { return i >= 26 ? '250px' : '50px'; })
-        //             .duration(duration)
-        //             .ease(ease)
-        //             .style('top', '50px')
-        //         });
-
-        // });
-      // cDivs.data(allCards[allCards.length - 1], mapping)
-      //   // .order()
-      //   .transition()
-      //   .ease("linear")
-      // // cDivs.transition()
-      //   .duration(1000)
-      //   .style('z-index', function(d, i) { return i*2; })
-      //   .style('top', function(d, i) { return i >= 26 ? '250px' : '50px'; })
-      //   // .transition()
-      //   // .duration(1000)
-      //   .style('left', function(d, i) {return (i * 15) + 'px'})
-      //   .each('end', function (node) {
-      //     console.log('f')
-      //     d3.selectAll('.card')
-      //       .transition()
-      //       .style('top', '50px')
-      //   })
-        // .style('top', '50px');
-
-      // d3.timer(function () {
-      //   cDivs.data(allCards[allCards.length - 1], mapping)
-      //     .transition()
-      //     .style('z-index', function(d, i) { return i*2; })
-      //       .transition()
-      //       .duration(1000)
-      //         .style('left', function(d, i) {return (i * 15) + 'px'})
-      //           .transition()
-      //           .duration(1000)
-      //           .style('top', '50px');
-      //   cDivs.order();
-
-      //   return true;
-      // }, 1000);
-        // .transition()
-        //   .duration(1000)
-        //   .style('left', function(d, i) { console.log("i: " + i + " d: " + console.dir(d)); return (i * 15) + 'px'});
-
-    });
     var poo;
-    d3.select('#stepx').on("click", function() {
-      shuffleCount++;
-      // cDivs.filter(function(d, i) { console.log(i); return i >= 26; })
-      switch(shuffleCount % 2) {
-        case 1:
-          cDivs
-          .data(cards)
-          .transition()
-          .duration(1000)
-          .style('top', function(d, i) { return i >= 26 ? '250px' : '50px'; })
-          // .end()
-            .transition()
-            .style('left', function(d, i) {
-              var r;
-              if (i >= 26) {
-                r = ((i - 26) * 30) + 15;
-              } else {
-                r = i * 30;
-              }
-              return r + 'px';
-              // return ((i >= 26 ? i - 26 : i) * 30) + 'px'
-            });
-          break;
-        case 0:
-          var tcards = [];
-          cDivs
-            .style('z-index', function(d, i) { return (i >= 26) ? (i - 26) * 2 + 1 : i * 2})
-            .transition()
-            .duration(1000)
-            .style('top', function (d, i) {
-              for (var i = 0; i < 52; i++) {
-                if (i >= 26) {
-                  tcards[i * 2] = cards[i];
-                } else {
-                  tcards[(i - 26) * 2 + 1] = cards[i];
-                }
-              }
-
-              cards = tcards;
-              // shuffleCount = 0;
-              return '50px';
-            }).remove();
-          setTimeout(function () {
-            console.log(cards);
-            cDivs = body.selectAll(".container")
-              .data(cards)
-              .enter().append("div")
-              .attr("class", "card")
-              .html(compiled)
-              .style('left', function(d, i) { console.log(d); return (i * 15) + "px";})
-              .style('top', '50px')
-              .style('z-index', function(d, i) { return i*2;});
-
-          }, 1500);
-
-          break;
-        }
-
-
-        // .enter()
-        // .top('left', function(d, i) { return (i * 2)})
-        // .style('left', function(d, i) { return (i * 2)})
+    d3.select('#shuffleOut').on("click", function() {
+      shuffle('out');
     });
-    // cDivs.append("div").attr("class", "corner");
+    d3.select('#shuffleIn').on("click", function() {
+      shuffle('in');
+    });
 
-    /*
-            <div class="card three">
-          <div class="corner top">
-            <span class="number">3</span>
-            <span>&#9827;</span>
-          </div>
-
-          <span class="suit top_center">&#9827;</span>
-          <span class="suit middle_center">&#9827;</span>
-          <span class="suit bottom_center">&#9827;</span>
-
-          <div class="corner bottom">
-            <span class="number">3</span>
-            <span>&#9827;</span>
-          </div>
-        </div>
-      */
   </script>
 </body>
