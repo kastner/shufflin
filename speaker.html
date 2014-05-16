@@ -33,8 +33,8 @@
 
     navigator.webkitGetUserMedia({audio:true}, function (stream) {
         microphone = context.createMediaStreamSource(stream);
-        microphone.connect( createLPInputFilter() );
-        microphone = lpInputFilter;
+        // microphone.connect( createLPInputFilter() );
+        // microphone = lpInputFilter;
         // var filter = context.createBiquadFilter();
         // microphone.connect(filter);
         // filter.connect(context.destination);
@@ -49,11 +49,11 @@
                 //playSound(buffer);
         // }, function(e) { console.log(e); });
 
-        gain = context.createGain();
-        gain.gain.value = 0;
+        // gain = context.createGain();
+        // gain.gain.value = 1;
         // analyser.connect(javascriptNode);
-        microphone.connect(gain);
-        gain.connect(analyser);
+        // microphone.connect(gain);
+        // gain.connect(analyser);
         analyser.connect(javascriptNode);
         javascriptNode.connect(context.destination);
 
@@ -65,8 +65,12 @@ var lpInputFilter=null;
 // this is ONLY because we have massive feedback without filtering out
 // the top end in live speaker scenarios.
 function createLPInputFilter(output) {
+    // lpInputFilter = context.createBiquadFilter();
+    // lpInputFilter.frequency.value = 10000;
     lpInputFilter = context.createBiquadFilter();
-    lpInputFilter.frequency.value = 9999;
+    lpInputFilter.type = 'lowshelf';
+    lpInputFilter.frequency.value = 10000;
+    lpInputFilter.gain.value = 40;
     return lpInputFilter;
 }
 
@@ -83,7 +87,9 @@ function createLPInputFilter(output) {
     var awesomeWave;
     var hasAwesome = false;
     var a2;
-    var sampleSize = 2048;
+    var sampleSize = 512;
+    var noiseMean = 0;
+    var activeSwipe = false;
 
 
     // get the context from the canvas to draw on
@@ -226,7 +232,8 @@ var rafID;
                 // drawWaveform(a2);
                 drawWaveform();
                 drawSpectrogram();
-                analyzeWave();
+                // analyzeWave();
+                processWave();
             // }
             // window.requestAnimationFrame(drawWaveform);
             // if (Math.random() > 0.9) {
@@ -236,6 +243,43 @@ var rafID;
             // window.requestAnimationFrame(pAudio);
         }
     }
+
+    var noiseLevels = [];
+    var interesting = [];
+
+    function processWave() {
+
+        var averageLevel;
+        var l = amplitudeArrays[0].length;
+
+        var sum = 0;
+        for (var i = 0; i < l; i++) { sum += Math.abs(amplitudeArrays[0][i] - 127); }
+        averageLevel = sum / amplitudeArrays[0].length;
+
+
+        // try to see if this is the start or end of a swipe
+
+        // get 100 waves to figure out the average noise
+        if (noiseMean == 0 && noiseLevels.length < 100) {
+            noiseLevels.push(averageLevel);
+        }
+
+        if (noiseMean == 0 && noiseLevels.length >= 100) {
+            noiseMean = noiseLevels.reduce(function(a,v) { return a+v;} ) / noiseLevels.length;
+            console.log("got a mean: " + noiseMean);
+        }
+
+        if (noiseMean > 0) {
+            // at this kind of level, it's likely a swipe
+            if (averageLevel / noiseMean > 20) {
+                for (var i = 0; i < l; i++) { interesting.push(amplitudeArrays[0][i] - 127); }
+            }
+        }
+
+
+
+    }
+
 var gCrossings = [];
 var crossings = [];
 
@@ -499,13 +543,23 @@ var crossings = [];
         // for (var i = 0; i < width; i++) {
             // console.log(amplitudeArray.length);
         // for (var i = amplitudeArrays.length - 1; i >= 0; i--) {
-        if (hasAwesome) {
-            var al = awesomeWave.length;
-            wCtx.fillStyle = 'red';
+        // if (hasAwesome) {
+        //     var al = awesomeWave.length;
+        //     wCtx.fillStyle = 'red';
+        //     wCtx.globalAlpha = 1;
+
+        //     for (var i = 0; i < al; i++) {
+        //         wCtx.fillRect(i / al * width, height * (awesomeWave[i] / 255), 1, 1);
+        //     }
+        // }
+        if (interesting.length > 0) {
+            var al = interesting.length;
+            wCtx.fillStyle = 'white';
             wCtx.globalAlpha = 1;
 
             for (var i = 0; i < al; i++) {
-                wCtx.fillRect(i / al * width, height * (awesomeWave[i] / 255), 1, 1);
+                v = interesting[i];
+                wCtx.fillRect(i / al * width, height * ((v + 127) / 255), 1, 1);
             }
         }
         for (var i = 0; i == 0; i++) {
