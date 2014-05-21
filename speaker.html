@@ -277,7 +277,7 @@ var rafID;
                 for (var i = 0; i < l; i++) { interesting.push(amplitudeArrays[0][i] - 127); }
             } else if (interesting.length > interestingCount) {
                 interestingCount = interesting.length;
-                investigateInteresting();
+                // investigateInteresting();
             }
         }
 
@@ -288,7 +288,7 @@ var rafID;
     var meanWidth;
     var widths = [];
     function investigateInteresting() {
-        $("#stopStart").click();
+        // $("#stopStart").click();
         var lastChangePos = -1;
         var lastChangeValue = -1;
         meanWidth = 0;
