@@ -13,7 +13,8 @@
 </head>
 <body style="background-color: white;">
 
-<button id="stopStart">Start</button>
+<button id="stopStart">Stop</button>
+<label><input type='checkbox' id='showInteresting'></input>Persist waveform</label>
 <canvas id="canvas" width="800" height="400" style="display: block; background-color: black ;"></canvas>
 <br>
 <canvas id="wCanvas" width="800" height="105" style="display: block; background-color: black ;"></canvas>
@@ -29,6 +30,8 @@
     }
 
     var context = new AudioContext();
+
+    var showInteresting = false;
 
 
     navigator.webkitGetUserMedia({audio:true}, function (stream) {
@@ -277,7 +280,10 @@ var rafID;
                 for (var i = 0; i < l; i++) { interesting.push(amplitudeArrays[0][i] - 127); }
             } else if (interesting.length > interestingCount) {
                 interestingCount = interesting.length;
-                // investigateInteresting();
+                if (showInteresting) {
+                    investigateInteresting();
+                }
+
             }
         }
 
@@ -520,6 +526,11 @@ var crossings = [];
         }
     }
 
+    $("#showInteresting").on("change", function() {
+        showInteresting = !showInteresting;
+        interesting = [];
+    });
+
     $("#stopStart").on("click", function() {
         $this = $(this);
         if ($this.html() == "Start") {
@@ -535,7 +546,7 @@ var crossings = [];
         }
     });
 
-    var going=false;
+    var going=true;
 
 
 // function updateAnalysers(time) {

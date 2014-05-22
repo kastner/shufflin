@@ -56,6 +56,10 @@
       width: 111% !important;
     }
 */
+#container {
+  overflow: auto;
+  height: 430px;
+}
     .hearts, .diamonds { color: red; }
     .spades, .clubs { color: black; }
 
@@ -243,15 +247,25 @@
   transform: rotate(180deg);
 }
 .card { font-size: 7px; position: absolute;}
+#clear-list { margin-bottom: 5px;}
+/*.middle-cards .card { position: relative;}*/
   </style>
 </head>
 <body>
   <button id="shuffleOut">Out Shuffle!</button>
   <button id="shuffleIn">In Shuffle!</button>
+
   <span class="info">Number of shuffles: <span class="num-shuffles">0</span></span>
+
   <span class="matched"></span>
+
   <div id="container">
   </div>
+
+  <button id="clear-list">Clear</button>
+  <div id="middle-cards">
+  </div>
+
 
     <script id="card-back" type="text/x-mustache-template">
       <div class="card-back"><span class="middle_center"><img src="img/back.png"></span></div>
@@ -451,9 +465,11 @@
     }
 
     var allCards = [cards];
-    console.log(allCards);
+    // console.log(allCards);
 
-    var cDivs = body.selectAll(".container")
+    var middleCards = [];
+
+    var cDivs = body.select("#container").selectAll("div")
       .data(cards, mapping)
       .enter().append("div")
       .attr("class", "card")
@@ -463,6 +479,28 @@
       .style('z-index', function(d, i) { return i*2;});
 
 
+    var mids = body.select("#middle-cards").selectAll("div")
+      .data(middleCards, mapping);
+
+    var oML = 0;
+    function updateMiddleCards() {
+      mids = mids.data(middleCards, mapping);
+
+      mids.enter().append("div")
+        .attr("class", "card")
+        .style('left', function(d, i) { return (i * 15) + "px";})
+        .html(compiled)
+
+      mids.exit()
+        .transition()
+          .style('opacity', 0)
+          .style('left', function(d, i) { return ((oML - i) * 500) + 'px';})
+          .delay(function(d, i) { return ((oML - i) * 100)})
+          .duration(duration)
+          .remove()
+
+      oML = middleCards.length;
+    }
 
     function shuffle(inOut) {
       // shuffle
@@ -477,6 +515,11 @@
         }
 
       }
+
+      // show the middle card in the run-list
+      // console.log(pCards[25]);
+      middleCards.push(pCards[25]);
+      updateMiddleCards();
 
       allCards.push(tcards);
 
@@ -521,6 +564,11 @@
     });
     d3.select('#shuffleIn').on("click", function() {
       shuffle('in');
+    });
+
+    d3.select('#clear-list').on("click", function () {
+      middleCards = [];
+      updateMiddleCards();
     });
 
   </script>
