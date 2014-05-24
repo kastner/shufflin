@@ -9,6 +9,7 @@
   "author": "Erik Kastner",
   "license": "BSD",
   "devDependencies": {
+    "beefy": "^1.1.0",
     "wavesurfer.js": "~0.1"
   }
 }

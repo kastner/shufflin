@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Waves</title>
+</head>
+<body>
+  <button id='toneA'>A</button>
+  <!-- <script src="/-/live-reload.js"></script> -->
+  <script src="/w.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+    SineWave = function(context) {
+      var that = this;
+      this.x = 0; // Initial sample number
+      this.context = context;
+      this.sample_rate = this.context.sampleRate;
+      this.frequency = 440;
+      this.sample_size = 1024;
+      this.node = context.createJavaScriptNode(this.sample_size, 1, 1);
+      this.node.onaudioprocess = function(e) { that.process(e) };
+      // this.tick_time = this.context.currentTime;
+      this.window_time = this.sample_size / this.sample_rate;
+    }
+
+    SineWave.prototype.process = function(e) {
+      // console.log(this.context.currentTime - this.tick_time);
+      // this.tick_time = this.context.currentTime;
+      var data = e.outputBuffer.getChannelData(0);
+      for (var i = 0; i < data.length; ++i) {
+        var scaling = this.sample_rate / ((Math.PI * 2) * 440);
+        // data[i] = Math.sin(this.x++ / (this.sample_rate / 2 * Math.PI * this.frequency));
+        // data[i] = Math.sin(this.x++ / 20);
+        data[i] = Math.sin(this.x++ / scaling);
+      }
+    }
+
+    SineWave.prototype.play = function() {
+      this.node.connect(this.context.destination);
+    }
+
+    SineWave.prototype.pause = function() {
+      this.node.disconnect();
+    }
+  </script>
+
+  <script type="text/javascript">
+    var playing = false;
+    var context = new webkitAudioContext();
+    var sinewave = new SineWave(context);
+
+    document.getElementById("toneA").addEventListener('click', function () {
+      if (playing) {
+        sinewave.pause();
+        playing = false;
+      } else {
+        sinewave.play();
+        playing = true;
+      }
+    }, false);
+  </script>
+</body>
+</html>

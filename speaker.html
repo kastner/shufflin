@@ -91,7 +91,7 @@ function createLPInputFilter(output) {
     var awesomeWave;
     var hasAwesome = false;
     var a2;
-    var sampleSize = 4096;
+    var sampleSize = 512;
     var noiseMean = 0;
     var activeSwipe = false;
 
@@ -109,7 +109,7 @@ function createLPInputFilter(output) {
     tempCanvas.height=400;
 
     // used for color distribution
-    var hot = chroma.scale(['#000000', '#ff0000', '#ffff00', '#ffffff']).domain([0, 300]).correctLightness(true);
+    var hot = chroma.scale(['#000000', '#ff0000', '#ffff00', '#ffffff']).domain([0, 280]).correctLightness(true);
     // var hot = new chroma.scale({
     //     colors:['#000000', '#ff0000', '#ffff00', '#ffffff'],
     //     positions:[0, .25, .75, 1],
@@ -276,7 +276,7 @@ var rafID;
 
         if (noiseMean != 0) {
             // at this kind of level, it's likely a swipe
-            if (averageLevel / noiseMean > 20) {
+            if (averageLevel / noiseMean > 20 && showInteresting    ) {
                 for (var i = 0; i < l; i++) { interesting.push(amplitudeArrays[0][i] - 127); }
             } else if (interesting.length > interestingCount) {
                 interestingCount = interesting.length;
@@ -294,6 +294,7 @@ var rafID;
     var meanWidth;
     var widths = [];
     function investigateInteresting() {
+        // bettter way: if (! showInteresting) { return; }
         // $("#stopStart").click();
         var lastChangePos = -1;
         var lastChangeValue = -1;
@@ -560,8 +561,10 @@ var crossings = [];
 
         // copy the current canvas onto the temp canvas
         var canvas = document.getElementById("canvas");
+        var height = canvas.height;
+        var width = canvas.width;
 
-        tempCtx.drawImage(canvas, 0, 0, 800, 512);
+        tempCtx.drawImage(canvas, 0, 0, width, height);
 
         // iterate over the elements from the array
         var fl = freqArray.length;
@@ -575,15 +578,14 @@ var crossings = [];
             }
             // ctx.fillStyle = hot(value).hex();
 
-
             // draw the line at the right side of the canvas
-            ctx.fillRect(800 - 1, 512 - i, 1, 1);
+            ctx.fillRect(width - 1, height - i, 1, 1);
         }
 
         // set translate on the canvas
         ctx.translate(-1, 0);
         // draw the copied image
-        ctx.drawImage(tempCanvas, 0, 0, 800, 512, 0, 0, 800, 512);
+        ctx.drawImage(tempCanvas, 0, 0, width, height, 0, 0, width, height);
 
         // reset the transformation matrix
         ctx.setTransform(1, 0, 0, 1, 0, 0);
