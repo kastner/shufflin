@@ -91,7 +91,8 @@ function createLPInputFilter(output) {
     var awesomeWave;
     var hasAwesome = false;
     var a2;
-    var sampleSize = 512;
+    // looks like 2048 (fft) is best so far?
+    var sampleSize = 2048;
     var noiseMean = 0;
     var activeSwipe = false;
 
@@ -102,11 +103,12 @@ function createLPInputFilter(output) {
     // waveform context
     var wCtx = $("#wCanvas").get()[0].getContext("2d");
 
+    var margin=50;
     // create a temp canvas we use for copying
     var tempCanvas = document.createElement("canvas"),
         tempCtx = tempCanvas.getContext("2d");
-    tempCanvas.width=800;
-    tempCanvas.height=400;
+    tempCanvas.width=ctx.canvas.width-margin;
+    tempCanvas.height=ctx.canvas.height;
 
     // used for color distribution
     var hot = chroma.scale(['#000000', '#ff0000', '#ffff00', '#ffffff']).domain([0, 280]).correctLightness(true);
@@ -129,6 +131,25 @@ function createLPInputFilter(output) {
 // check zero crossings
 // THEN process
 
+    function drawFreqsOnGraph() {
+        var height = ctx.canvas.height;
+        var fl = analyser.fftSize / 2;
+        var vScale = height / fl;
+        var fS = context.sampleRate/analyser.fftSize
+        for (var i = 0; i < fl; i++) {
+            if (i % 50 == 20) {
+            //     // draw a label
+
+                ctx.font="10px Helvetica";
+                ctx.fillStyle='#777';
+            //     // ctx.globalCompositeOperation = "xor";
+                ctx.fillText(Math.floor(i * fS * 10) / 10, 7, height-(i * vScale));
+            //     // ctx.globalCompositeOperation = "destination-atop";
+            }
+            ctx.fillStyle = 'black'
+        }
+    }
+
     function setupAudioNodes() {
 
         // setup a javascript node
@@ -137,12 +158,16 @@ function createLPInputFilter(output) {
         // javascriptNode.connect(context.destination);
 
 
-        javascriptNode = context.createScriptProcessor(sampleSize, 1, 1);
+        // javascriptNode = context.createScriptProcessor(sampleSize, 1, 1);
+        javascriptNode = context.createScriptProcessor();
         javascriptNode.onaudioprocess = pAudio;
 
         analyser = context.createAnalyser();
         analyser.smoothingTimeConstant = 0;
-        // analyser.fftSize = sampleSize;
+        analyser.fftSize = sampleSize;
+
+        // draw freqs on graph
+        drawFreqsOnGraph();
 
         // analyserSmooth = context.createAnalyser();
         // analyserSmooth.smoothingTimeConstant = 1;
@@ -563,11 +588,13 @@ var crossings = [];
         var canvas = document.getElementById("canvas");
         var height = canvas.height;
         var width = canvas.width;
+        var short_width = canvas.width - margin;
 
-        tempCtx.drawImage(canvas, 0, 0, width, height);
+        tempCtx.drawImage(canvas, margin, 0, short_width, height, 0, 0, short_width, height);
 
         // iterate over the elements from the array
         var fl = freqArray.length;
+        vScale = height / fl;
         for (var i = 0; i < fl; i++) {
             // draw each pixel with the specific color
             var value = freqArray[i];
@@ -579,16 +606,17 @@ var crossings = [];
             // ctx.fillStyle = hot(value).hex();
 
             // draw the line at the right side of the canvas
-            ctx.fillRect(width - 1, height - i, 1, 1);
+            ctx.fillRect(width - 2, height - (i * vScale), 2, 2);
         }
 
         // set translate on the canvas
         ctx.translate(-1, 0);
         // draw the copied image
-        ctx.drawImage(tempCanvas, 0, 0, width, height, 0, 0, width, height);
+        ctx.drawImage(tempCanvas, 0, 0, short_width, height, margin, 0, short_width, height);
 
         // reset the transformation matrix
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        // ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.resetTransform();
 
     }
 

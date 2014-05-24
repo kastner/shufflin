@@ -5,9 +5,86 @@
   <title>Waves</title>
 </head>
 <body>
-  <button id='toneA'>A</button>
+  <button id='toneC' class='tone' data-playing='0' data-freq='261.63'>C</button>
+  <button id='toneCs' class='tone' data-playing='0' data-freq='277.18'>C#</button>
+  <button id='toneD' class='tone' data-playing='0' data-freq='293.66'>D</button>
+  <button id='toneDs' class='tone' data-playing='0' data-freq='311.13'>D#</button>
+  <button id='toneE' class='tone' data-playing='0' data-freq='329.63'>E</button>
+  <button id='toneF' class='tone' data-playing='0' data-freq='349.23'>F</button>
+  <button id='toneFs' class='tone' data-playing='0' data-freq='369.99'>F#</button>
+  <button id='toneG' class='tone' data-playing='0' data-freq='392.00'>G</button>
+  <button id='toneGs' class='tone' data-playing='0' data-freq='415.30'>G#</button>
+  <button id='toneA' class='tone' data-playing='0' data-freq='440.00'>A</button>
+  <button id='toneAs' class='tone' data-playing='0' data-freq='466.16'>A#</button>
+  <button id='toneB' class='tone' data-playing='0' data-freq='493.88'>B</button>
+
   <!-- <script src="/-/live-reload.js"></script> -->
-  <script src="/w.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+    var context = new webkitAudioContext(); // Create audio container
+    var toneButtons = document.querySelectorAll(".tone");
+    var doubleCount = 9;
+
+    for (var i = 0; i < toneButtons.length; i++) {
+      var cFunc = function() {
+        // set up Oscillator
+        var oscillators = [];
+        for (var j=0; j < doubleCount; j += 1) {
+          oscillators[j] = context.createOscillator();
+          oscillators[j].type = 0;
+          var pow = j - Math.floor(doubleCount / 2);
+          // console.log(pow);
+          // oscillators[j].frequency.value = toneButtons[i].dataset.freq * Math.pow(2, pow);
+          var freq = Number(toneButtons[i].dataset.freq);
+          var nJ = (j + 1) * 2;
+          var nF = freq * nJ;
+          oscillators[j].frequency.value = nF;
+          console.log(freq + " - " + (freq * nJ) + " - " + nJ + " - " + nF + " - " + oscillators[j].frequency.value);
+        }
+        // var gainNode = context.createGainNode();
+
+        return function(e) {
+          var element = e.target;
+          var playing = element.dataset.playing;
+
+          if (playing == '0') {
+            for (var j = 0; j < doubleCount; j++) {
+              oscillators[j].connect(context.destination);
+              oscillators[j].noteOn(0);
+            }
+            element.dataset.playing = '1';
+            element.innerHTML = element.innerHTML + " *";
+          } else {
+            for (var j = 0; j < doubleCount; j++) {
+              oscillators[j].noteOff(0);
+              oscillators[j].disconnect;
+            }
+            element.dataset.playing = '0';
+            element.innerHTML = element.innerHTML.replace(/ \*/, '');
+          }
+          // if (this.playing == false) { this.playing = true; }
+          // if (that.playing == false) { that.playing = true; }
+        }
+      }
+
+      toneButtons[i].addEventListener('click', cFunc());
+    }
+    // var oscs = {};
+    // var playing = false;
+    // var context = new webkitAudioContext();
+    // var sinewave = new SineWave(context);
+
+    // document.getElementById("toneA").addEventListener('click', function () {
+    //   if (playing) {
+    //     sinewave.pause();
+    //     playing = false;
+    //   } else {
+    //     sinewave.play();
+    //     playing = true;
+    //   }
+    // }, false);
+  </script>
+
 
   <script type="text/javascript">
     SineWave = function(context) {
@@ -42,22 +119,6 @@
     SineWave.prototype.pause = function() {
       this.node.disconnect();
     }
-  </script>
-
-  <script type="text/javascript">
-    var playing = false;
-    var context = new webkitAudioContext();
-    var sinewave = new SineWave(context);
-
-    document.getElementById("toneA").addEventListener('click', function () {
-      if (playing) {
-        sinewave.pause();
-        playing = false;
-      } else {
-        sinewave.play();
-        playing = true;
-      }
-    }, false);
   </script>
 </body>
 </html>
