@@ -34,12 +34,13 @@
           oscillators[j].type = 0;
           var pow = j - Math.floor(doubleCount / 2);
           // console.log(pow);
-          // oscillators[j].frequency.value = toneButtons[i].dataset.freq * Math.pow(2, pow);
           var freq = Number(toneButtons[i].dataset.freq);
-          var nJ = (j + 1) * 2;
-          var nF = freq * nJ;
-          oscillators[j].frequency.value = nF;
-          console.log(freq + " - " + (freq * nJ) + " - " + nJ + " - " + nF + " - " + oscillators[j].frequency.value);
+          oscillators[j].frequency.value = freq * Math.pow(2, pow);
+
+          // var nJ = (j + 1) * 2;
+          // var nF = freq * nJ;
+          // oscillators[j].frequency.value = nF;
+          // console.log(freq + " - " + (freq * nJ) + " - " + nJ + " - " + nF + " - " + oscillators[j].frequency.value);
         }
         // var gainNode = context.createGainNode();
 

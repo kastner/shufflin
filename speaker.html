@@ -95,6 +95,7 @@ function createLPInputFilter(output) {
     var sampleSize = 2048;
     var noiseMean = 0;
     var activeSwipe = false;
+    var graphZoom = [10, 300];
 
 
     // get the context from the canvas to draw on
@@ -131,13 +132,17 @@ function createLPInputFilter(output) {
 // check zero crossings
 // THEN process
 
+    function dvScale() {
+        return ctx.canvas.height / (graphZoom[1] - graphZoom[0]);
+    }
+
     function drawFreqsOnGraph() {
         var height = ctx.canvas.height;
         var fl = analyser.fftSize / 2;
-        var vScale = height / fl;
+        var vScale = dvScale();
         var fS = context.sampleRate/analyser.fftSize
-        for (var i = 0; i < fl; i++) {
-            if (i % 50 == 20) {
+        for (var i = graphZoom[0]; i < graphZoom[1]; i++) {
+            if (i % ((graphZoom[1] - graphZoom[0]) / 20) == 10) {
             //     // draw a label
 
                 ctx.font="10px Helvetica";
@@ -151,7 +156,6 @@ function createLPInputFilter(output) {
     }
 
     function setupAudioNodes() {
-
         // setup a javascript node
         // javascriptNode = context.createScriptProcessor(512, 1, 0);
         // connect to destination, else it isn't called
@@ -165,6 +169,9 @@ function createLPInputFilter(output) {
         analyser = context.createAnalyser();
         analyser.smoothingTimeConstant = 0;
         analyser.fftSize = sampleSize;
+
+        if (graphZoom[0] == -1) { graphZoom[0] = 0; }
+        if (graphZoom[1] == -1) { graphZoom[0] = analyser.fftSize; }
 
         // draw freqs on graph
         drawFreqsOnGraph();
@@ -594,8 +601,9 @@ var crossings = [];
 
         // iterate over the elements from the array
         var fl = freqArray.length;
-        vScale = height / fl;
-        for (var i = 0; i < fl; i++) {
+        // vScale = height / fl;
+        vScale = dvScale();
+        for (var i = graphZoom[0]; i < graphZoom[1]; i++) {
             // draw each pixel with the specific color
             var value = freqArray[i];
             if (value > 0) {
@@ -606,7 +614,7 @@ var crossings = [];
             // ctx.fillStyle = hot(value).hex();
 
             // draw the line at the right side of the canvas
-            ctx.fillRect(width - 2, height - (i * vScale), 2, 2);
+            ctx.fillRect(width - 2, height - (i * vScale), 1, 1);
         }
 
         // set translate on the canvas
