@@ -23,7 +23,7 @@
   <script type="text/javascript">
     var context = new webkitAudioContext(); // Create audio container
     var toneButtons = document.querySelectorAll(".tone");
-    var doubleCount = 9;
+    var doubleCount = 1;
 
     for (var i = 0; i < toneButtons.length; i++) {
       var cFunc = function() {
@@ -49,11 +49,12 @@
             for (var j = 0; j < doubleCount; j++) {
               // oscillators[j].connect(context.destination);
               oscillators[j] = context.createOscillator();
-              oscillators[j].type = 0;
+              oscillators[j].type = 3;
               var pow = j - Math.floor(doubleCount / 2);
-              // console.log(pow);
+              console.log(pow);
 
               oscillators[j].frequency.value = freq * Math.pow(2, pow);
+              console.log(oscillators[j].frequency.value);
               oscillators[j].connect(context.destination);
               oscillators[j].start(0);
             }
