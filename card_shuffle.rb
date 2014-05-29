@@ -4,11 +4,13 @@ suits = %w|️♥️ ️♣ ♦️ ♠️|#.reverse
 nums = ["A"] + (2..9).to_a + %w|* J Q K|
 
 cards = suits.map.with_index {|s,i| i < 2 ? nums.collect {|i| "%s %s " % [i, s]} : nums.reverse.collect {|i| "%s %s " % [i, s]}}.flatten
+cards.pop
+# cards.pop
 
   # nums.collect {|i| "%s %s " % [i, s]}.reverse}.flatten
 # cards = (1..52).map {|i| "%02d  " % i}
 # puts cards.length
-puts "--------------------\n*** IN *** shuffle\n--------------------"
+# puts "--------------------\n*** IN *** shuffle\n--------------------"
 puts cards.join("|")
 
 initial = cards.dup
@@ -28,8 +30,8 @@ until done do
 
   # if cycle_count > 2
     # in shuffle
-    # cards = left.zip(right).flatten
-    cards = right.zip(left).flatten
+    cards = left.zip(right).flatten
+    # cards = right.zip(left).flatten
   # else
     # out shuffle
     # cards = right.zip(left).flatten
